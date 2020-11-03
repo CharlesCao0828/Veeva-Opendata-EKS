@@ -23,5 +23,13 @@
 - 步骤七
 获取AWS_ACCESS_KEY与AWS_SECRET_ACCESS_KEY的信息，运行“aws configure”命令对key进行配置。
 ```
-    aws configure
+aws configure
+```
+### 创建EKS集群
+- 步骤1
+安装eksctl客户端，eksctl是EKS服务提供的客户端工具，通过eksctl，用户可以对EKS集群以及工作节点的生命周期进行管理，如添加、删除、升级、参数配置等。
+```
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+eksctl version
 ```
