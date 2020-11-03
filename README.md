@@ -9,3 +9,9 @@
 ## 实验步骤
 ### 创建Cloud9实例
 - 步骤一
+登录AWS Console，单击进入cloud9服务界面。
+- 步骤二
+单击创建环境，开始cloud9实例的创建。
+- 步骤三
+为cloud9实例命名，命名规则为myide-<your name>
+
