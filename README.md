@@ -13,5 +13,4 @@
 - 步骤二
 单击创建环境，开始cloud9实例的创建。
 - 步骤三
-为cloud9实例命名，命名规则为myide-<your name>
-
+为cloud9实例命名，命名规则为myide-\ <your name>\
