@@ -56,4 +56,10 @@ sudo mv ./aws-iam-authenticator /usr/bin/aws-iam-authenticator
 ```
 eksctl create cluster --name=eks-workshop-<“yourname”> --nodes-min=3 --nodes-max=5 --node-type=m5.xlarge  
 ```
+- 步骤五
+集群的创建大概耗时20分钟，待集群成功创建后，eksctl会自动在客户端的～/.kube路径下配置config文件。用户可以直接通过kubectl与EKS集群进行交互。
+```
+“##”查看Kubernetes集群内服务
+kubectl get svc
+```
 
