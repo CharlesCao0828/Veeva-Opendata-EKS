@@ -22,6 +22,6 @@
 单击cloud9面板右侧上方的“Preferences”设置图标，单击AWS Settings并禁用“AWS managed temporary credentials”。
 - 步骤七
 获取AWS_ACCESS_KEY与AWS_SECRET_ACCESS_KEY的信息，运行“aws configure”命令对key进行配置。
-    
-    ## aws 命令
+```
     aws configure
+```
