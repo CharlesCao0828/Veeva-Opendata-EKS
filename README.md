@@ -1,5 +1,16 @@
 # Veeva-Opendata-EKS
 
+## Lab1、创建cloud9实例并安装、配置客户端
+```
+cat >> ~/.bashrc << EOF
+export AWS_ACCESS_KEY_ID=XXX
+export AWS_SECRET_ACCESS_KEY=XXX
+export AWS_SESSION_TOKEN=XXX
+export AWS_DEFAULT_REGION=XXX
+EOF
+source ~/.bashrc
+```
+
 ## Lab2、创建EKS集群
 ### 二、创建EKS集群
 - 步骤一：安装eksctl客户端，eksctl是EKS服务提供的客户端工具，通过eksctl，用户可以对EKS集群以及工作节点的生命周期进行管理，如添加、删除、升级、参数配置等。
@@ -37,7 +48,7 @@ kubectl cluster-info
 kubectl get svc
 ```
 
-### 三、集群节点数量调整
+## Lab3、集群节点数量调整
 - 步骤一：查看当前节点数量。
 ```
 kubectl get node 
@@ -124,6 +135,53 @@ eksctl get nodegroup ng-windows --cluster <your-cluster-name>
 ## Lab6、新增Windows类型节点，并安装Windows应用。
 - 步骤一：开启集群对Windows系统的支持。
 ```
+sudo yum install jq
+kubectl apply -f https://amazon-eks.s3.us-west-2.amazonaws.com/manifests/us-west-2/vpc-resource-controller/latest/vpc-resource-controller.yaml
+
+curl -o webhook-create-signed-cert.sh https://amazon-eks.s3.us-west-2.amazonaws.com/manifests/us-west-2/vpc-admission-webhook/latest/webhook-create-signed-cert.sh
+curl -o webhook-patch-ca-bundle.sh https://amazon-eks.s3.us-west-2.amazonaws.com/manifests/us-west-2/vpc-admission-webhook/latest/webhook-patch-ca-bundle.sh
+curl -o vpc-admission-webhook-deployment.yaml https://amazon-eks.s3.us-west-2.amazonaws.com/manifests/us-west-2/vpc-admission-webhook/latest/vpc-admission-webhook-deployment.yaml
+
+chmod +x webhook-create-signed-cert.sh webhook-patch-ca-bundle.sh
+./webhook-create-signed-cert.sh
+cat ./vpc-admission-webhook-deployment.yaml | ./webhook-patch-ca-bundle.sh > vpc-admission-webhook.yaml
+kubectl apply -f vpc-admission-webhook.yaml
+cat > eks-kube-proxy-windows-crb.yaml << EOF
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: eks:kube-proxy-windows
+  labels:
+    k8s-app: kube-proxy
+    eks.amazonaws.com/component: kube-proxy
+subjects:
+  - kind: Group
+    name: "eks:kube-proxy-windows"
+roleRef:
+  kind: ClusterRole
+  name: system:node-proxier
+  apiGroup: rbac.authorization.k8s.io
+EOF
+kubectl apply -f eks-kube-proxy-windows-crb.yaml
+```
+- 步骤二：创建操作系统类型为Windows的工作节点组。
+```
+eksctl create nodegroup \
+  --cluster <your-cluster-name> \
+  --name ng-windows \
+  --node-type t2.large \
+  --nodes 3 \
+  --nodes-min 1 \
+  --nodes-max 4 \
+  --node-ami-family WindowsServer2019FullContainer
+```
+- 步骤三：查看Windows工作节点组安装状态。
+```
+eksctl get nodegroup ng-windows --cluster <your-cluster-name>
+```
+
+- 步骤四：将Windows应用容器部署至Windows类型的工作节点上。
+```
 cat > windows-server-iis.yaml << "EOF"
 apiVersion: apps/v1
 kind: Deployment
@@ -177,6 +235,11 @@ EOF
 
 kubectl apply -f windows-server-iis.yaml 
 ```
+- 步骤五：等待3～5分钟复制Kubernetes Service链接，访问Windows应用。
+```
+kubectl get svc  | grep windows-server-iis-service
+```
+
 ## Lab7、创建Fargate容器
 - 步骤一：创建Fargate Profile，fargate profile可以通过命令行的形式创建也可以通过图形界面的方式创建。
 ```
